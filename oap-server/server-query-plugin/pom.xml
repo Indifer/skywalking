@@ -29,6 +29,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>query-graphql-plugin</module>
+        <module>query-transaction-plugin</module>
     </modules>
 
 </project>

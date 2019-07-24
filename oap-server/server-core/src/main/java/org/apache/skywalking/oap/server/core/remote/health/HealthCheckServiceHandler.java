@@ -40,7 +40,7 @@ public class HealthCheckServiceHandler extends HealthGrpc.HealthImplBase impleme
         StreamObserver<HealthCheckService.HealthCheckResponse> responseObserver) {
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Received the gRPC server health check with the service name of {}", request.getService());
+            logger.debug("Received the gRPC server transaction check with the service name of {}", request.getService());
         }
 
         HealthCheckService.HealthCheckResponse.Builder response = HealthCheckService.HealthCheckResponse.newBuilder();

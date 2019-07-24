@@ -127,6 +127,8 @@ envoy-metric:
 query:
   graphql:
     path: ${SW_QUERY_GRAPHQL_PATH:/graphql}
+  transaction:
+    path: ${SW_QUERY_GRAPHQL_PATH:/transaction}
 alarm:
   default:
 telemetry:
