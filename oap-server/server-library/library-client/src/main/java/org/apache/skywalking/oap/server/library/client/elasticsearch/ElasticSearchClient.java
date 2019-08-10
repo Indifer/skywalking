@@ -18,9 +18,12 @@
 
 package org.apache.skywalking.oap.server.library.client.elasticsearch;
 
+import com.fasterxml.jackson.core.JsonGenerationException;
 import com.google.gson.*;
+
 import java.io.*;
 import java.util.*;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.*;
 import org.apache.http.auth.*;
@@ -29,7 +32,9 @@ import org.apache.http.client.methods.*;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.nio.entity.NStringEntity;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.library.client.Client;
+import org.elasticsearch.action.ActionRequestValidationException;
 import org.elasticsearch.action.admin.indices.create.*;
 import org.elasticsearch.action.admin.indices.delete.*;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
@@ -49,6 +54,7 @@ import org.slf4j.*;
 
 /**
  * @author peng-yongsheng
+ * update by liangyi 2019/7/29
  */
 public class ElasticSearchClient implements Client {
 
@@ -61,6 +67,8 @@ public class ElasticSearchClient implements Client {
     private final String password;
     private RestHighLevelClient client;
 
+//    private static final String ID_IS_TOO_LONG = "id_too_long";
+
     public ElasticSearchClient(String clusterNodes, String namespace, String user, String password) {
         this.clusterNodes = clusterNodes;
         this.namespace = namespace;
@@ -68,14 +76,15 @@ public class ElasticSearchClient implements Client {
         this.password = password;
     }
 
-    @Override public void connect() throws IOException {
+    @Override
+    public void connect() throws IOException {
         List<HttpHost> pairsList = parseClusterNodes(clusterNodes);
         RestClientBuilder builder;
         if (StringUtils.isNotBlank(user) && StringUtils.isNotBlank(password)) {
             final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
             credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(user, password));
             builder = RestClient.builder(pairsList.toArray(new HttpHost[0]))
-                .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
+                    .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
         } else {
             builder = RestClient.builder(pairsList.toArray(new HttpHost[0]));
         }
@@ -83,7 +92,8 @@ public class ElasticSearchClient implements Client {
         client.ping();
     }
 
-    @Override public void shutdown() throws IOException {
+    @Override
+    public void shutdown() throws IOException {
         client.close();
     }
 
@@ -244,22 +254,56 @@ public class ElasticSearchClient implements Client {
     }
 
     public void forceInsert(String indexName, String id, XContentBuilder source) throws IOException {
+
+        //update by liangyi 2019/7/29
+        if (!StringUtil.isEmpty(id) && id.length() >= 256) {
+            id = id.substring(0, 255);
+        }
+
         IndexRequest request = prepareInsert(indexName, id, source);
         request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
-        client.index(request);
+        try {
+            client.index(request);
+        } catch (ActionRequestValidationException ex) {
+            logger.error(request.toString());
+        } catch (JsonGenerationException ex) {
+            logger.error(request.toString());
+        }
     }
 
     public void forceUpdate(String indexName, String id, XContentBuilder source, long version) throws IOException {
+        //update by liangyi 2019/7/29
+        if (!StringUtil.isEmpty(id) && id.length() >= 256) {
+            id = id.substring(0, 255);
+        }
+
         UpdateRequest request = prepareUpdate(indexName, id, source);
         request.version(version);
         request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
-        client.update(request);
+        try {
+            client.update(request);
+        } catch (ActionRequestValidationException ex) {
+            logger.error(request.toString());
+        } catch (JsonGenerationException ex) {
+            logger.error(request.toString());
+        }
     }
 
     public void forceUpdate(String indexName, String id, XContentBuilder source) throws IOException {
+        //update by liangyi 2019/7/29
+        if (!StringUtil.isEmpty(id) && id.length() >= 256) {
+            id = id.substring(0, 255);
+        }
+
         UpdateRequest request = prepareUpdate(indexName, id, source);
         request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
-        client.update(request);
+        try {
+            client.update(request);
+        } catch (ActionRequestValidationException ex) {
+            logger.error(request.toString());
+        } catch (JsonGenerationException ex) {
+            logger.error(request.toString());
+        }
     }
 
     public IndexRequest prepareInsert(String indexName, String id, XContentBuilder source) {
@@ -276,14 +320,14 @@ public class ElasticSearchClient implements Client {
         indexName = formatIndexName(indexName);
         Map<String, String> params = Collections.singletonMap("conflicts", "proceed");
         String jsonString = "{" +
-            "  \"query\": {" +
-            "    \"range\": {" +
-            "      \"" + timeBucketColumnName + "\": {" +
-            "        \"lte\": " + endTimeBucket +
-            "      }" +
-            "    }" +
-            "  }" +
-            "}";
+                "  \"query\": {" +
+                "    \"range\": {" +
+                "      \"" + timeBucketColumnName + "\": {" +
+                "        \"lte\": " + endTimeBucket +
+                "      }" +
+                "    }" +
+                "  }" +
+                "}";
         HttpEntity entity = new NStringEntity(jsonString, ContentType.APPLICATION_JSON);
         Response response = client.getLowLevelClient().performRequest(HttpPost.METHOD_NAME, "/" + indexName + "/_delete_by_query", params, entity);
         logger.debug("delete indexName: {}, jsonString : {}", indexName, jsonString);
@@ -321,11 +365,11 @@ public class ElasticSearchClient implements Client {
         };
 
         return BulkProcessor.builder(client::bulkAsync, listener)
-            .setBulkActions(bulkActions)
-            .setBulkSize(new ByteSizeValue(bulkSize, ByteSizeUnit.MB))
-            .setFlushInterval(TimeValue.timeValueSeconds(flushInterval))
-            .setConcurrentRequests(concurrentRequests)
-            .setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueMillis(100), 3))
-            .build();
+                .setBulkActions(bulkActions)
+                .setBulkSize(new ByteSizeValue(bulkSize, ByteSizeUnit.MB))
+                .setFlushInterval(TimeValue.timeValueSeconds(flushInterval))
+                .setConcurrentRequests(concurrentRequests)
+                .setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueMillis(100), 3))
+                .build();
     }
 }
