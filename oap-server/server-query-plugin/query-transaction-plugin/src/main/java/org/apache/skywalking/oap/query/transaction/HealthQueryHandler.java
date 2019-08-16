@@ -38,6 +38,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -58,7 +59,7 @@ public class HealthQueryHandler extends JettyJsonHandler {
 
     private final String path;
 
-    private final GraphQL graphQL;
+//    private final GraphQL graphQL;
 
 
     @Override public String pathSpec() {
@@ -78,41 +79,9 @@ public class HealthQueryHandler extends JettyJsonHandler {
         }
 
         JsonObject requestJson = gson.fromJson(request.toString(), JsonObject.class);
+        requestJson.addProperty("time", new Date().toString());
 
-        return execute(requestJson.get(QUERY).getAsString(), gson.fromJson(requestJson.get(VARIABLES), mapOfStringObjectType));
+        return requestJson;
     }
 
-    private JsonObject execute(String request, Map<String, Object> variables) {
-        try {
-            ExecutionInput executionInput = ExecutionInput.newExecutionInput().query(request).variables(variables).build();
-            ExecutionResult executionResult = graphQL.execute(executionInput);
-            logger.debug("Execution result is {}", executionResult);
-            Object data = executionResult.getData();
-            List<GraphQLError> errors = executionResult.getErrors();
-            JsonObject jsonObject = new JsonObject();
-            if (data != null) {
-                jsonObject.add(DATA, gson.fromJson(gson.toJson(data), JsonObject.class));
-            }
-
-            if (CollectionUtils.isNotEmpty(errors)) {
-                JsonArray errorArray = new JsonArray();
-                errors.forEach(error -> {
-                    JsonObject errorJson = new JsonObject();
-                    errorJson.addProperty(MESSAGE, error.getMessage());
-                    errorArray.add(errorJson);
-                });
-                jsonObject.add(ERRORS, errorArray);
-            }
-            return jsonObject;
-        } catch (final Throwable e) {
-            logger.error(e.getMessage(), e);
-            JsonObject jsonObject = new JsonObject();
-            JsonArray errorArray = new JsonArray();
-            JsonObject errorJson = new JsonObject();
-            errorJson.addProperty(MESSAGE, e.getMessage());
-            errorArray.add(errorJson);
-            jsonObject.add(ERRORS, errorArray);
-            return jsonObject;
-        }
-    }
 }

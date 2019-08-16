@@ -17,7 +17,7 @@ public class HealthQueryProvider  extends ModuleProvider {
 
     private final HealthQueryConfig config = new HealthQueryConfig();
 
-    private GraphQL graphQL;
+//    private GraphQL graphQL;
 
     @Override public String name() {
         return "transaction";
@@ -32,7 +32,7 @@ public class HealthQueryProvider  extends ModuleProvider {
     }
 
     @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-        GraphQLSchema schema = SchemaParser.newParser()
+//        GraphQLSchema schema = SchemaParser.newParser()
 //                .file("query-protocol/common.graphqls")
 //                .resolvers(new Query(), new Mutation())
 //                .file("query-protocol/metadata.graphqls")
@@ -51,14 +51,14 @@ public class HealthQueryProvider  extends ModuleProvider {
 //                .resolvers(new TopNRecordsQuery(getManager()))
 //                .file("query-protocol/log.graphqls")
 //                .resolvers(new LogQuery(getManager()))
-                .build()
-                .makeExecutableSchema();
-        this.graphQL = GraphQL.newGraphQL(schema).build();
+//                .build()
+//                .makeExecutableSchema();
+//        this.graphQL = GraphQL.newGraphQL(schema).build();
     }
 
     @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
         JettyHandlerRegister service = getManager().find(CoreModule.NAME).provider().getService(JettyHandlerRegister.class);
-        service.addHandler(new HealthQueryHandler(config.getPath(), graphQL));
+        service.addHandler(new HealthQueryHandler(config.getPath()));
     }
 
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
