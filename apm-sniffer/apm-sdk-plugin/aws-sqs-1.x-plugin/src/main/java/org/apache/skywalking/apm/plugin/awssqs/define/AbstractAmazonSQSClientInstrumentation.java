@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package java.org.apache.skywalking.apm.plugin.awssqs.define;
+package org.apache.skywalking.apm.plugin.awssqs.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;

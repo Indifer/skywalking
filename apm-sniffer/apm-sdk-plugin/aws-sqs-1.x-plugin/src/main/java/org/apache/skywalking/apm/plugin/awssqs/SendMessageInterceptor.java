@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package java.org.apache.skywalking.apm.plugin.awssqs;
+package org.apache.skywalking.apm.plugin.awssqs;
 
 import com.amazonaws.services.sqs.model.MessageAttributeValue;
 import com.amazonaws.services.sqs.model.SendMessageRequest;

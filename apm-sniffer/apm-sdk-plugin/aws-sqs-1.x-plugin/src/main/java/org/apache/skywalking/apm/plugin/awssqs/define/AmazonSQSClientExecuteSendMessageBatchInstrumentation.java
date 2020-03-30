@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package java.org.apache.skywalking.apm.plugin.awssqs.define;
+package org.apache.skywalking.apm.plugin.awssqs.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -23,10 +23,10 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsIn
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
-public class AmazonSQSClientExecuteSendMessageInstrumentation extends AbstractAmazonSQSClientInstrumentation {
+public class AmazonSQSClientExecuteSendMessageBatchInstrumentation extends AbstractAmazonSQSClientInstrumentation {
 
-    public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.awssqs.SendMessageInterceptor";
-    public static final String ENHANCE_METHOD_EXECUTE_SEND_MESSAGE = "executeSendMessage";
+    public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.awssqs.SendMessageBatchInterceptor";
+    public static final String ENHANCE_METHOD_EXECUTE_SEND_MESSAGE_BATCH = "executeSendMessageBatch";
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
@@ -34,7 +34,7 @@ public class AmazonSQSClientExecuteSendMessageInstrumentation extends AbstractAm
             new InstanceMethodsInterceptPoint() {
                     @Override
                     public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named(ENHANCE_METHOD_EXECUTE_SEND_MESSAGE);
+                        return named(ENHANCE_METHOD_EXECUTE_SEND_MESSAGE_BATCH);
                     }
 
                     @Override

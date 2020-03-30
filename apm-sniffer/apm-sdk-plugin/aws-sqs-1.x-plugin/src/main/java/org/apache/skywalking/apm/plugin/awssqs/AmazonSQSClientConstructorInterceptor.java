@@ -16,7 +16,7 @@
  *
  */
 
-package java.org.apache.skywalking.apm.plugin.awssqs;
+package org.apache.skywalking.apm.plugin.awssqs;
 
 import com.amazonaws.AmazonWebServiceClient;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
