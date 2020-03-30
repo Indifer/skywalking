@@ -156,4 +156,8 @@ public class ComponentsDefine {
     public static final OfficialComponent UNDERTOW = new OfficialComponent(84, "Undertow");
 
     public static final OfficialComponent FINAGLE = new OfficialComponent(85, "Finagle");
+
+    public static final OfficialComponent AWS_SQS_PRODUCER = new OfficialComponent(86,"aws-sqs-producer");
+
+    public static final OfficialComponent AWS_SQS_CONSUMER = new OfficialComponent(87,"aws-sqs-consumer");
 }

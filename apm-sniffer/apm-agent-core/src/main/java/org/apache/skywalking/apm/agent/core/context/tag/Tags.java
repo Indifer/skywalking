@@ -84,6 +84,11 @@ public final class Tags {
     }
 
     /**
+     * MQ_MSG_ID records the message id of message-middleware
+     */
+    public static final StringTag MQ_MSG_ID = new StringTag(11, "mq.msg_id");
+
+    /**
      * Creates a {@code StringTag} with the given key and cache it, if it's created before, simply return it without
      * creating a new one.
      *
