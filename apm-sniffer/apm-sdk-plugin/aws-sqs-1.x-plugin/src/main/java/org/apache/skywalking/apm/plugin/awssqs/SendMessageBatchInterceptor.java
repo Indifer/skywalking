@@ -15,9 +15,13 @@
  *  limitations under the License.
  */
 
-package java.org.apache.skywalking.apm.plugin.awssqs;
+package org.apache.skywalking.apm.plugin.awssqs;
 
-import com.amazonaws.services.sqs.model.*;
+import com.amazonaws.services.sqs.model.MessageAttributeValue;
+import com.amazonaws.services.sqs.model.SendMessageBatchRequest;
+import com.amazonaws.services.sqs.model.SendMessageBatchRequestEntry;
+import com.amazonaws.services.sqs.model.SendMessageBatchResult;
+import com.amazonaws.services.sqs.model.SendMessageBatchResultEntry;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -86,7 +90,6 @@ public class SendMessageBatchInterceptor implements InstanceMethodsAroundInterce
 
             Tags.MQ_MSG_ID.set(activeSpan, StringUtil.join(',', msgIds));
         }
-
 
         ContextManager.stopSpan();
         return ret;
