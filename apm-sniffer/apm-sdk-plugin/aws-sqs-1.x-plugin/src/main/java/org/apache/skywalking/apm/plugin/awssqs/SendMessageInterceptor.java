@@ -30,6 +30,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.util.StringUtil;
 
 import java.lang.reflect.Method;
 import java.net.URI;
@@ -55,7 +56,7 @@ public class SendMessageInterceptor implements InstanceMethodsAroundInterceptor 
 
         ContextCarrier contextCarrier = new ContextCarrier();
         AbstractSpan activeSpan = ContextManager.createExitSpan(OPERATE_NAME_PREFIX + queueUrl
-                + PRODUCER_OPERATE_NAME_SUFFIX, contextCarrier, url);
+            + PRODUCER_OPERATE_NAME_SUFFIX, contextCarrier, url);
 
         Tags.MQ_QUEUE.set(activeSpan, queueUrl);
         SpanLayer.asMQ(activeSpan);
@@ -64,8 +65,11 @@ public class SendMessageInterceptor implements InstanceMethodsAroundInterceptor 
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
-            sendMessageRequest.getMessageAttributes().put(next.getHeadKey(),
+
+            if (!StringUtil.isBlank(next.getHeadValue())) {
+                sendMessageRequest.getMessageAttributes().put(next.getHeadKey(),
                     new MessageAttributeValue().withStringValue(next.getHeadValue()).withDataType("String"));
+            }
         }
 
     }
