@@ -89,7 +89,6 @@
         <module>avro-plugin</module>
         <module>finagle-6.25.x-plugin</module>
         <module>aws-sqs-1.x-plugin</module>
-        <module>aws-sqs-xplat-1.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 
