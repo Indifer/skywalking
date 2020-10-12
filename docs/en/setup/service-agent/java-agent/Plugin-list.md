@@ -41,6 +41,7 @@
 - memcache-2.x
 - mongodb-2.x
 - mongodb-3.x
+- mongodb-4.x
 - motan-0.x
 - mysql-5.x
 - mysql-6.x
@@ -53,6 +54,7 @@
 - postgresql-8.x
 - pulsar
 - quasar
+- quartz-scheduler-2.x
 - rabbitmq-5.x
 - redisson-3.x
 - resteasy-server-3.x
@@ -85,6 +87,7 @@
 - spring-scheduled-annotation
 - spring-tx
 - spring-webflux-5.x
+- spring-webflux-5.x-webclient
 - spymemcached-2.x
 - struts2-2.x
 - tomcat-7.x/8.x
@@ -98,6 +101,8 @@
 - toolkit-opentracing
 - toolkit-tag
 - toolkit-trace
+- toolkit-exception
 - undertow-2.x-plugin
 - vertx-core-3.x
+- xxl-job-2.x
 - zookeeper-3.4.x

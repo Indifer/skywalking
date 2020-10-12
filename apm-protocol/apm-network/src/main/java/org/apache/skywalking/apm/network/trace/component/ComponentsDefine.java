@@ -174,4 +174,10 @@ public class ComponentsDefine {
     public static final OfficialComponent SPRING_KAFKA_CONSUMER = new OfficialComponent(95, "spring-kafka-consumer");
 
     public static final OfficialComponent SPRING_SCHEDULED = new OfficialComponent(96, "SpringScheduled");
+
+    public static final OfficialComponent QUARTZ_SCHEDULER = new OfficialComponent(97, "quartz-scheduler");
+
+    public static final OfficialComponent XXL_JOB = new OfficialComponent(98, "xxl-job");
+
+    public static final OfficialComponent SPRING_WEBCLIENT = new OfficialComponent(99, "spring-webflux-webclient");
 }

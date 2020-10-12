@@ -96,9 +96,12 @@ property key | Description | Default |
 `logging.file_name`|Log file name.|`skywalking-api.log`|
 `logging.output`| Log output. Default is FILE. Use CONSOLE means output to stdout. |`FILE`|
 `logging.dir`|Log files directory. Default is blank string, means, use "{theSkywalkingAgentJarDir}/logs  " to output logs. {theSkywalkingAgentJarDir} is the directory where the skywalking agent jar file is located |`""`|
-`logging.pattern `|logging format. There are all conversion specifiers: <br>&nbsp;&nbsp;* `%level` means log level. <br>&nbsp;&nbsp;*  `%timestamp` means now of time with format `yyyy-MM-dd HH:mm:ss:SSS`.<br>&nbsp;&nbsp;*   `%thread` means name of current thread.<br>&nbsp;&nbsp;*   `%msg` means some message which user logged. <br>&nbsp;&nbsp;*  `%class` means SimpleName of TargetClass. <br>&nbsp;&nbsp;*  `%throwable` means a throwable which user called. <br>&nbsp;&nbsp;*  `%agent_name` means `agent.service_name`  |`%level %timestamp %thread %class : %msg %throwable`|
+`logging.resolver`|Logger resolver: `PATTERN` or `JSON`. The default is `PATTERN`, which uses `logging.pattern` to print traditional text logs. `JSON` resolver prints logs in JSON format. |`PATTERN`|
+`logging.pattern `|Logging format. There are all conversion specifiers: <br>&nbsp;&nbsp;* `%level` means log level. <br>&nbsp;&nbsp;*  `%timestamp` means now of time with format `yyyy-MM-dd HH:mm:ss:SSS`.<br>&nbsp;&nbsp;*   `%thread` means name of current thread.<br>&nbsp;&nbsp;*   `%msg` means some message which user logged. <br>&nbsp;&nbsp;*  `%class` means SimpleName of TargetClass. <br>&nbsp;&nbsp;*  `%throwable` means a throwable which user called. <br>&nbsp;&nbsp;*  `%agent_name` means `agent.service_name`. Only apply to the `PatternLogger`. |`%level %timestamp %thread %class : %msg %throwable`|
 `logging.max_file_size`|The max size of log file. If the size is bigger than this, archive the current file, and write into a new file.|`300 * 1024 * 1024`|
 `logging.max_history_files`|The max history log files. When rollover happened, if log files exceed this number,then the oldest file will be delete. Negative or zero means off, by default.|`-1`|
+`statuscheck.ignored_exceptions`|Listed exceptions would not be treated as an error. Because in some codes, the exception is being used as a way of controlling business flow.|`""`|
+`statuscheck.max_recursive_depth`|The max recursive depth when checking the exception traced by the agent. Typically, we don't recommend setting this more than 10, which could cause a performance issue. Negative value and 0 would be ignored, which means all exceptions would make the span tagged in error status.|`1`|
 `jvm.buffer_size`|The buffer size of collected JVM info.|`60 * 10`|
 `buffer.channel_size`|The buffer channel size.|`5`|
 `buffer.buffer_size`|The buffer size.|`300`|
@@ -110,6 +113,7 @@ property key | Description | Default |
 `meter.active`|If true, the agent collects and reports metrics to the backend.|`true`|
 `meter.report_interval`|Report meters interval. The unit is second|`20`|
 `meter.max_meter_size`| Max size of the meter pool |`500`|
+`plugin.mount` | Mount the specific folders of the plugins. Plugins in mounted folders would work. | `plugins,activations` |
 `plugin.peer_max_length `|Peer maximum description limit.|`200`|
 `plugin.exclude_plugins `|Exclude some plugins define in plugins dir.Plugin names is defined in [Agent plugin list](Plugin-list.md)|`""`|
 `plugin.mongodb.trace_param`|If true, trace all the parameters in MongoDB access, default is false. Only trace the operation, not include parameters.|`false`|
@@ -117,12 +121,9 @@ property key | Description | Default |
 `plugin.elasticsearch.trace_dsl`|If true, trace all the DSL(Domain Specific Language) in ElasticSearch access, default is false.|`false`|
 `plugin.springmvc.use_qualified_name_as_endpoint_name`|If true, the fully qualified method name will be used as the endpoint name instead of the request URL, default is false.|`false`|
 `plugin.toolit.use_qualified_name_as_operation_name`|If true, the fully qualified method name will be used as the operation name instead of the given operation name, default is false.|`false`|
-`plugin.mysql.trace_sql_parameters`|If set to true, the parameters of the sql (typically `java.sql.PreparedStatement`) would be collected.|`false`|
-`plugin.mysql.sql_parameters_max_length`|If set to positive number, the `db.sql.parameters` would be truncated to this length, otherwise it would be completely saved, which may cause performance problem.|`512`|
-`plugin.postgresql.trace_sql_parameters`|If set to true, the parameters of the sql (typically `java.sql.PreparedStatement`) would be collected.|`false`|
-`plugin.postgresql.sql_parameters_max_length`|If set to positive number, the `db.sql.parameters` would be truncated to this length, otherwise it would be completely saved, which may cause performance problem.|`512`|
-`plugin.mariadb.trace_sql_parameters`|If set to true, the parameters of the sql (typically `java.sql.PreparedStatement`) would be collected.|`false`|
-`plugin.mariadb.sql_parameters_max_length`|If set to positive number, the `db.sql.parameters` would be truncated to this length, otherwise it would be completely saved, which may cause performance problem.|`512`|
+`plugin.jdbc.trace_sql_parameters`|If set to true, the parameters of the sql (typically `java.sql.PreparedStatement`) would be collected.|`false`|
+`plugin.jdbc.sql_parameters_max_length`|If set to positive number, the `db.sql.parameters` would be truncated to this length, otherwise it would be completely saved, which may cause performance problem.|`512`|
+`plugin.jdbc.sql_body_max_length`|If set to positive number, the `db.statement` would be truncated to this length, otherwise it would be completely saved, which may cause performance problem.|`2048`|
 `plugin.solrj.trace_statement`|If true, trace all the query parameters(include deleteByIds and deleteByQuery) in Solr query request, default is false.|`false`|
 `plugin.solrj.trace_ops_params`|If true, trace all the operation parameters in Solr request, default is false.|`false`|
 `plugin.light4j.trace_handler_chain`|If true, trace all middleware/business handlers that are part of the Light4J handler chain for a request.|false|
@@ -145,6 +146,7 @@ property key | Description | Default |
 `plugin.dubbo.collect_provider_arguments`| Apache Dubbo provider collect `arguments` in RPC call, use `Object#toString` to collect `arguments`. |`false`| 
 `plugin.dubbo.consumer_provider_length_threshold`| When `plugin.dubbo.provider_consumer_arguments` is `true`, Arguments of length from the front will to the OAP backend |`256`| 
 `plugin.kafka.bootstrap_servers`| A list of host/port pairs to use for establishing the initial connection to the Kafka cluster. | `localhost:9092`
+`plugin.kafka.get_topic_timeout`| Timeout period of reading topics from the Kafka server, the unit is second. |`10`|
 `plugin.kafka.consumer_config`| Kafka producer configuration. ||
 `plugin.kafka.producer_config`| Kafka producer configuration. Read [producer configure](http://kafka.apache.org/24/documentation.html#producerconfigs) to get more details. Check [Kafka report doc](How-to-enable-kafka-reporter.md) for more details and examples. | |
 `plugin.kafka.topic_meter` | Specify which Kafka topic name for Meter System data to report to. | `skywalking_meters` |
@@ -152,8 +154,7 @@ property key | Description | Default |
 `plugin.kafka.topic_segment` | Specify which Kafka topic name for traces data to report to. | `skywalking_segments` |
 `plugin.kafka.topic_profilings` | Specify which Kafka topic name for Thread Profiling snapshot to report to. | `skywalking_profilings` |
 `plugin.kafka.topic_management` | Specify which Kafka topic name for the register or heartbeat data of Service Instance to report to. | `skywalking_managements` |
-`plugin.springannotation.classname_match_regex_expression` |  Match spring beans with regex expression for the class name. Multiple expressions could be separated by a comma. This only works when `Spring annotation plugin` has been activated. | `All the spring beans tagged with @Bean,@Service,@Dao, or @Repository.` |
-
+`plugin.springannotation.classname_match_regex` |  Match spring beans with regular expression for the class name. Multiple expressions could be separated by a comma. This only works when `Spring annotation plugin` has been activated. | `All the spring beans tagged with @Bean,@Service,@Dao, or @Repository.` |
 
 ## Optional Plugins
 Java agent plugins are all pluggable. Optional plugins could be provided in `optional-plugins` folder under agent or 3rd party repositories.
@@ -169,6 +170,8 @@ Now, we have the following known optional plugins.
 * Plugin of Spring Cloud Gateway 2.1.x in optional plugin folder. Please only active this plugin when you install agent in Spring Gateway. spring-cloud-gateway-2.x-plugin and spring-webflux-5.x-plugin are both required.
 * Plugin of Spring Transaction in optional plugin folder. The reason of being optional plugin is, many local span are generated, which also spend more CPU, memory and network.
 * [Plugin of Kotlin coroutine](agent-optional-plugins/Kotlin-Coroutine-plugin.md) provides the tracing across coroutines automatically. As it will add local spans to all across routines scenarios, Please assess the performance impact.
+* Plugin of quartz-scheduler-2.x in the optional plugin folder. The reason for being an optional plugin is, many task scheduling systems are based on quartz-scheduler, this will cause duplicate tracing and link different sub-tasks as they share the same quartz level trigger, such as ElasticJob.
+* Plugin of spring-webflux-5.x in the optional plugin folder. Please only activate this plugin when you use webflux alone as a web container. If you are using SpringMVC 5 or Spring Gateway, you don't need this plugin.
 
 ## Bootstrap class plugins
 All bootstrap plugins are optional, due to unexpected risk. Bootstrap plugins are provided in `bootstrap-plugins` folder.
@@ -191,6 +194,7 @@ Now, we have the following known bootstrap plugins.
     * If you want to continue traces across thread manually, use [across thread solution APIs](Application-toolkit-trace-cross-thread.md).
     * If you want to forward MicroMeter/Spring Sleuth metrics to Meter System, use [SkyWalking MicroMeter Register](Application-toolkit-micrometer.md).
     * If you want to use OpenTracing Java APIs, try [SkyWalking OpenTracing compatible tracer](Opentracing.md). More details you could find at http://opentracing.io
+    * If you want to tolerate some exceptions, read [tolerate custom exception doc](How-to-tolerate-exceptions.md).
 * If you want to specify the path of your agent.config file. Read [set config file through system properties](Specified-agent-config.md)
 
 ## Advanced Reporters

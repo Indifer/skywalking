@@ -53,6 +53,12 @@ In this case, input are request of each ServiceInstanceJVMCPU scope, avg is base
 > endpoint_percent = from(Endpoint.*).percent(status == true);
 
 In this case, all input are requests of each endpoint, condition is `endpoint.status == true`.
+- `rate`. The rate expressed as a fraction of 100, for the condition matched input.
+> browser_app_error_rate = from(BrowserAppTraffic.*).rate(trafficCategory == BrowserAppTrafficCategory.FIRST_ERROR, trafficCategory == BrowserAppTrafficCategory.NORMAL);
+
+In this case, all input are requests of each browser app traffic, `numerator` condition is `trafficCategory == BrowserAppTrafficCategory.FIRST_ERROR` and `denominator` condition is `trafficCategory == BrowserAppTrafficCategory.NORMAL`.
+The parameter (1) is the `numerator` condition.
+The parameter (2) is the `denominator` condition.
 - `sum`. The sum calls per scope entity.
 > service_calls_sum = from(Service.*).sum();
 
@@ -113,12 +119,6 @@ endpoint_percentile = from(Endpoint.latency).percentile(10)
 
 // Caculate the percent of response status is true, for each service.
 endpoint_success = from(Endpoint.*).filter(status == true).percent()
-
-// Caculate the percent of response code in [200, 299], for each service.
-endpoint_200 = from(Endpoint.*).filter(responseCode like "2%").percent()
-
-// Caculate the percent of response code in [500, 599], for each service.
-endpoint_500 = from(Endpoint.*).filter(responseCode like "5%").percent()
 
 // Caculate the sum of response code in [404, 500, 503], for each service.
 endpoint_abnormal = from(Endpoint.*).filter(responseCode in [404, 500, 503]).sum()

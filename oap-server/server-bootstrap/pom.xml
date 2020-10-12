@@ -126,6 +126,11 @@
             <artifactId>skywalking-meter-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-browser-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- receiver module -->
 
         <!-- fetcher module -->
@@ -253,6 +258,7 @@
                         <exclude>service-apdex-threshold.yml</exclude>
                         <exclude>endpoint-name-grouping.yml</exclude>
                         <exclude>ui-initialized-templates.yml</exclude>
+                        <exclude>oal/browser.oal</exclude>
                         <exclude>oal/core.oal</exclude>
                         <exclude>oal/java-agent.oal</exclude>
                         <exclude>oal/dotnet-agent.oal</exclude>
