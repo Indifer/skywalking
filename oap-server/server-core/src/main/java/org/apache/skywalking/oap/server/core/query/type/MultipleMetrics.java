@@ -21,18 +21,29 @@ package org.apache.skywalking.oap.server.core.query.type;
 import lombok.Getter;
 import lombok.Setter;
 
-@Setter
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * @since 8.0.0
+ */
 @Getter
-public class KVInt {
+@Setter
+public class MultipleMetrics {
+
     private String id;
-    private long value;
+    private String name;
 
-    public KVInt() {
+    private String entityId;
 
-    }
+    private final List<Attribute> attributes;
 
-    public KVInt(String id, long value) {
-        this.id = id;
-        this.value = value;
+    private final List<KVInt> metrics;
+
+    private String timeBucket;
+
+    public MultipleMetrics() {
+        this.attributes = new ArrayList<>();
+        this.metrics = new ArrayList<>();
     }
 }

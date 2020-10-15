@@ -29,6 +29,7 @@ import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
+import org.apache.skywalking.oap.server.core.analysis.MetricsModelMapping;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.StreamDefinition;
 import org.apache.skywalking.oap.server.core.analysis.StreamProcessor;
@@ -163,6 +164,8 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
         MetricsRemoteWorker remoteWorker = new MetricsRemoteWorker(moduleDefineHolder, remoteReceiverWorkerName);
         MetricsAggregateWorker aggregateWorker = new MetricsAggregateWorker(
             moduleDefineHolder, remoteWorker, stream.getName());
+
+        MetricsModelMapping.INSTANCE.put(stream.getName(), metricsClass);
 
         entryWorkers.put(metricsClass, aggregateWorker);
     }

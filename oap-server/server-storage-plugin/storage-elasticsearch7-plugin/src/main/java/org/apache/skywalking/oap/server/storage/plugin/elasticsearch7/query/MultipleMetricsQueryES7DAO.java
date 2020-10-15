@@ -16,23 +16,15 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.query.type;
+package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query;
 
-import lombok.Getter;
-import lombok.Setter;
+import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.MultipleMetricsQueryESDAO;
 
-@Setter
-@Getter
-public class KVInt {
-    private String id;
-    private long value;
+public class MultipleMetricsQueryES7DAO extends MultipleMetricsQueryESDAO {
 
-    public KVInt() {
-
+    public MultipleMetricsQueryES7DAO(ElasticSearchClient client) {
+        super(client);
     }
 
-    public KVInt(String id, long value) {
-        this.id = id;
-        this.value = value;
-    }
 }

@@ -18,6 +18,7 @@
 package org.apache.skywalking.oap.server.core.analysis;
 
 import java.util.Calendar;
+
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 
 public class TimeBucket {
@@ -57,6 +58,27 @@ public class TimeBucket {
             return getTimestamp(timeBucket, DownSampling.Hour);
         } else if (isDayBucket(timeBucket)) {
             return getTimestamp(timeBucket, DownSampling.Day);
+        } else {
+            throw new UnexpectedException("Unknown downsampling value.");
+        }
+    }
+
+    /**
+     * inference DownSampling by TimeBucket.
+     *
+     * @param timeBucket long
+     * @return DownSampling
+     */
+    public static DownSampling inferDownSampling(long timeBucket) {
+
+        if (isSecondBucket(timeBucket)) {
+            return DownSampling.Second;
+        } else if (isMinuteBucket(timeBucket)) {
+            return DownSampling.Minute;
+        } else if (isHourBucket(timeBucket)) {
+            return DownSampling.Hour;
+        } else if (isDayBucket(timeBucket)) {
+            return DownSampling.Day;
         } else {
             throw new UnexpectedException("Unknown downsampling value.");
         }

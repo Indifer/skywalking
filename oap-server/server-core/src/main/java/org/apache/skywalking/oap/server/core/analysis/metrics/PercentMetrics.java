@@ -28,9 +28,9 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 @MetricsFunction(functionName = "percent")
 public abstract class PercentMetrics extends Metrics implements IntValueHolder {
-    protected static final String TOTAL = "total";
-    protected static final String MATCH = "match";
-    protected static final String PERCENTAGE = "percentage";
+    public static final String TOTAL = "total";
+    public static final String MATCH = "match";
+    public static final String PERCENTAGE = "percentage";
 
     @Getter
     @Setter

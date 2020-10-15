@@ -16,23 +16,25 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.query.type;
+package org.apache.skywalking.oap.server.core.query.input;
 
 import lombok.Getter;
 import lombok.Setter;
 
-@Setter
+import java.util.List;
+
+/**
+ * @since 8.0.0
+ */
 @Getter
-public class KVInt {
-    private String id;
-    private long value;
-
-    public KVInt() {
-
-    }
-
-    public KVInt(String id, long value) {
-        this.id = id;
-        this.value = value;
-    }
+@Setter
+public class MultipleMetricsCondition {
+    /**
+     * Metrics name
+     */
+    private List<String> names;
+    /**
+     * See {@link Entity}
+     */
+    private Entity entity;
 }

@@ -11,7 +11,7 @@ ${metricsClassPackage}${metricsName}Metrics metrics = new ${metricsClassPackage}
 </#list>
 <#list persistentFields as field>
     <#if field.typeName == "long" || field.typeName == "int" || field.typeName == "double" || field.typeName == "float">
-        metrics.${field.fieldSetter}(((Number)dbMap.get("${field.columnName}")).${field.typeName}Value());
+        metrics.${field.fieldSetter}(org.apache.skywalking.apm.util.MapUtils.${field.typeName}Value(dbMap, "${field.columnName}"));
     <#elseif field.typeName == "java.lang.String">
         metrics.${field.fieldSetter}((String)dbMap.get("${field.columnName}"));
     <#else>

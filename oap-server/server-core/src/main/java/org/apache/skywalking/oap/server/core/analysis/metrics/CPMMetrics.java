@@ -29,8 +29,8 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 @MetricsFunction(functionName = "cpm")
 public abstract class CPMMetrics extends Metrics implements LongValueHolder {
 
-    protected static final String VALUE = "value";
-    protected static final String TOTAL = "total";
+    public static final String VALUE = "value";
+    public static final String TOTAL = "total";
 
     @Getter
     @Setter

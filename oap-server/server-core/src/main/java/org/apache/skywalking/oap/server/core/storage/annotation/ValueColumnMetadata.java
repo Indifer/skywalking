@@ -30,7 +30,7 @@ import org.apache.skywalking.oap.server.core.query.sql.Function;
  * {@link Column} annotation.
  */
 public enum ValueColumnMetadata {
-    INSTANCE;
+     INSTANCE;
 
     private Map<String, ValueColumn> mapping = new HashMap<>();
 

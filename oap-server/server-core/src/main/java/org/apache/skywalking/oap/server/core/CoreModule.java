@@ -38,6 +38,7 @@ import org.apache.skywalking.oap.server.core.query.LogQueryService;
 import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
 import org.apache.skywalking.oap.server.core.query.MetricsMetadataQueryService;
 import org.apache.skywalking.oap.server.core.query.MetricsQueryService;
+import org.apache.skywalking.oap.server.core.query.MultipleMetricsQueryService;
 import org.apache.skywalking.oap.server.core.query.ProfileTaskQueryService;
 import org.apache.skywalking.oap.server.core.query.TopNRecordsQueryService;
 import org.apache.skywalking.oap.server.core.query.TopologyQueryService;
@@ -109,6 +110,7 @@ public class CoreModule extends ModuleDefine {
         classes.add(TopologyQueryService.class);
         classes.add(MetricsMetadataQueryService.class);
         classes.add(MetricsQueryService.class);
+        classes.add(MultipleMetricsQueryService.class);
         classes.add(TraceQueryService.class);
         classes.add(LogQueryService.class);
         classes.add(MetadataQueryService.class);

@@ -16,23 +16,23 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.query.type;
+package org.apache.skywalking.oap.server.core.storage.query;
 
-import lombok.Getter;
-import lombok.Setter;
+import org.apache.skywalking.oap.server.core.query.input.MultipleMetricsCondition;
+import org.apache.skywalking.oap.server.core.query.type.MultipleMetrics;
+import org.apache.skywalking.oap.server.core.storage.DAO;
 
-@Setter
-@Getter
-public class KVInt {
-    private String id;
-    private long value;
+import java.io.IOException;
+import java.util.List;
 
-    public KVInt() {
+/**
+ * Query multiple metrics.
+ *
+ * @since 8.0.0
+ */
+public interface IMultipleMetricsQueryDAO extends DAO {
 
-    }
+    List<MultipleMetrics> readMultipleMetrics(final MultipleMetricsCondition condition,
+                                              final long timeBucket) throws IOException;
 
-    public KVInt(String id, long value) {
-        this.id = id;
-        this.value = value;
-    }
 }

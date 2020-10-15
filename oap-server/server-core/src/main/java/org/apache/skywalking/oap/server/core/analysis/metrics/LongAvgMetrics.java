@@ -30,9 +30,11 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 @MetricsFunction(functionName = "longAvg")
 public abstract class LongAvgMetrics extends Metrics implements LongValueHolder {
 
-    protected static final String SUMMATION = "summation";
-    protected static final String COUNT = "count";
-    protected static final String VALUE = "value";
+    public static final String SUMMATION = "summation";
+    public static final String COUNT = "count";
+    public static final String VALUE = "value";
+    public static final String MAX = "max";
+    public static final String MIN = "min";
 
     @Getter
     @Setter
@@ -44,6 +46,14 @@ public abstract class LongAvgMetrics extends Metrics implements LongValueHolder 
     protected long count;
     @Getter
     @Setter
+    @Column(columnName = MAX, storageOnly = true)
+    private long max;
+    @Getter
+    @Setter
+    @Column(columnName = MIN, storageOnly = true)
+    private long min;
+    @Getter
+    @Setter
     @Column(columnName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
     private long value;
 
@@ -51,6 +61,14 @@ public abstract class LongAvgMetrics extends Metrics implements LongValueHolder 
     public final void combine(@SourceFrom long summation, @ConstOne long count) {
         this.summation += summation;
         this.count += count;
+
+        if (value > this.max) {
+            this.max = value;
+        }
+
+        if (value < this.min || this.min == 0) {
+            this.min = value;
+        }
     }
 
     @Override

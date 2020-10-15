@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -35,9 +36,9 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
  */
 @MetricsFunction(functionName = "percentile")
 public abstract class PercentileMetrics extends Metrics implements MultiIntValuesHolder {
-    protected static final String DATASET = "dataset";
-    protected static final String VALUE = "value";
-    protected static final String PRECISION = "precision";
+    public static final String DATASET = "dataset";
+    public static final String VALUE = "value";
+    public static final String PRECISION = "precision";
 
     private static final int[] RANKS = {
         50,
@@ -46,6 +47,10 @@ public abstract class PercentileMetrics extends Metrics implements MultiIntValue
         95,
         99
     };
+
+    public static int[] ranksClone(){
+        return RANKS.clone();
+    }
 
     @Getter
     @Setter

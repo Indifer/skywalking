@@ -19,6 +19,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
@@ -67,7 +68,7 @@ public class TimeSeriesUtils {
      */
     public static String[] superDatasetIndexNames(String indexName, long startSecondTB, long endSecondTB) {
         if (startSecondTB == 0 || endSecondTB == 0) {
-            return new String[] {indexName};
+            return new String[]{indexName};
         }
         DateTime startDateTime = TIME_BUCKET_FORMATTER.parseDateTime(startSecondTB / 1000000 + "");
         DateTime endDateTime = TIME_BUCKET_FORMATTER.parseDateTime(endSecondTB / 1000000 + "");
@@ -76,13 +77,35 @@ public class TimeSeriesUtils {
             timeRanges.add(startDateTime.plusDays(i));
         }
         if (timeRanges.isEmpty()) {
-            return new String[] {indexName};
+            return new String[]{indexName};
         } else {
             return timeRanges.stream()
-                             .map(item -> indexName + Const.LINE + compressDateTime(item, SUPER_DATASET_DAY_STEP))
-                             .distinct()
-                             .toArray(String[]::new);
+                    .map(item -> indexName + Const.LINE + compressDateTime(item, SUPER_DATASET_DAY_STEP))
+                    .distinct()
+                    .toArray(String[]::new);
         }
+    }
+
+    /**
+     * @return Concrete index name for super dataset index
+     */
+    public static String superDatasetIndexName(String indexName, DownSampling downSampling, long timeBucket) {
+
+        switch (downSampling) {
+            case None:
+                return indexName;
+            case Hour:
+                return indexName + Const.LINE + compressTimeBucket(timeBucket / 100, DAY_STEP);
+            case Minute:
+                return indexName + Const.LINE + compressTimeBucket(timeBucket / 10000, DAY_STEP);
+            case Day:
+                return indexName + Const.LINE + compressTimeBucket(timeBucket, DAY_STEP);
+            case Second:
+                return indexName + Const.LINE + compressTimeBucket(timeBucket / 1000000, DAY_STEP);
+            default:
+                throw new UnexpectedException("Unexpected down sampling value, " + downSampling);
+        }
+
     }
 
     /**
@@ -96,20 +119,7 @@ public class TimeSeriesUtils {
         } else if (model.isRecord()) {
             return modelName + Const.LINE + compressTimeBucket(timeBucket / 1000000, DAY_STEP);
         } else {
-            switch (model.getDownsampling()) {
-                case None:
-                    return modelName;
-                case Hour:
-                    return modelName + Const.LINE + compressTimeBucket(timeBucket / 100, DAY_STEP);
-                case Minute:
-                    return modelName + Const.LINE + compressTimeBucket(timeBucket / 10000, DAY_STEP);
-                case Day:
-                    return modelName + Const.LINE + compressTimeBucket(timeBucket, DAY_STEP);
-                case Second:
-                    return modelName + Const.LINE + compressTimeBucket(timeBucket / 1000000, DAY_STEP);
-                default:
-                    throw new UnexpectedException("Unexpected down sampling value, " + model.getDownsampling());
-            }
+            return superDatasetIndexName(model.getName(), model.getDownsampling(), timeBucket);
         }
     }
 
@@ -122,9 +132,9 @@ public class TimeSeriesUtils {
 
     /**
      * Follow the dayStep to re-format the time bucket literal long value.
-     *
+     * <p>
      * Such as, in dayStep == 11,
-     *
+     * <p>
      * 20000105 re-formatted time bucket is 20000101, 20000115 re-formatted time bucket is 20000112, 20000123
      * re-formatted time bucket is 20000123
      */
