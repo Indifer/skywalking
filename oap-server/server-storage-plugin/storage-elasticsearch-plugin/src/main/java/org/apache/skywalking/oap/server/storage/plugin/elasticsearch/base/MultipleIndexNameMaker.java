@@ -17,15 +17,12 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
-import com.google.protobuf.FieldType;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.IndexNameMaker;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 

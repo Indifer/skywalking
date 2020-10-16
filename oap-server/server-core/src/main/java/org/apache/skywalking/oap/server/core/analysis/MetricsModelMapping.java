@@ -26,16 +26,16 @@ import java.util.Map;
 public class MetricsModelMapping {
 
     public static MetricsModelMapping INSTANCE = new MetricsModelMapping();
-    private final Map<String, Class<? extends Metrics>> REGISTER = new HashMap<>();
+    private final Map<String, Class<? extends Metrics>> register = new HashMap<>();
 
     public void put(String metricsName, Class<? extends Metrics> metricsClass) {
-        REGISTER.put(metricsName, metricsClass);
+        register.put(metricsName, metricsClass);
     }
 
     @SneakyThrows
     public Class<? extends Metrics> find(String metricsName) {
 
-        Class<? extends Metrics> metricsClass = REGISTER.get(metricsName);
+        Class<? extends Metrics> metricsClass = register.get(metricsName);
         if (metricsClass == null) {
             throw new IllegalArgumentException("Can't find metrics, " + metricsName);
         }

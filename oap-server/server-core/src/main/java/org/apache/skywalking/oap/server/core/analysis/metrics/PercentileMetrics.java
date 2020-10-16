@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -48,7 +47,7 @@ public abstract class PercentileMetrics extends Metrics implements MultiIntValue
         99
     };
 
-    public static int[] ranksClone(){
+    public static int[] ranksClone() {
         return RANKS.clone();
     }
 

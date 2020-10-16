@@ -19,12 +19,17 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import org.apache.skywalking.apm.util.StringUtil;
-import org.apache.skywalking.oap.server.core.analysis.MetricsModelMapping;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.analysis.metrics.*;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
+import org.apache.skywalking.oap.server.core.analysis.metrics.LongAvgMetrics;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.analysis.metrics.PercentMetrics;
+import org.apache.skywalking.oap.server.core.analysis.metrics.PercentileMetrics;
 import org.apache.skywalking.oap.server.core.query.input.MultipleMetricsCondition;
 import org.apache.skywalking.oap.server.core.query.type.KVInt;
+import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
 import org.apache.skywalking.oap.server.core.query.type.MultipleMetrics;
+import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.query.IMultipleMetricsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
@@ -42,7 +47,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.apache.skywalking.apm.util.MapUtils.longValue;
-import static org.apache.skywalking.oap.server.core.analysis.MetricsUtils.getFunctionName;
 import static org.apache.skywalking.oap.server.core.analysis.MetricsUtils.is;
 
 public class MultipleMetricsQueryESDAO extends EsDAO implements IMultipleMetricsQueryDAO {
@@ -56,7 +60,6 @@ public class MultipleMetricsQueryESDAO extends EsDAO implements IMultipleMetrics
                                                      final long timeBucket) throws IOException {
 
         String entityId = condition.getEntity().buildId();
-//        String id = StringUtil.isNotEmpty(entityId) ? new PointOfTime(timeBucket).id(entityId) : null;
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
@@ -99,6 +102,9 @@ public class MultipleMetricsQueryESDAO extends EsDAO implements IMultipleMetrics
                 }
 
                 String metricsName = metricsMap.get(searchHit.getIndex());
+                MetricsValues metricsValues = new MetricsValues();
+                metricsValues.setLabel(metricsName);
+
                 if (is(metricsName, PercentileMetrics.class)) {
 
                     String percentileValues = (String) source.get(PercentileMetrics.VALUE);
@@ -108,29 +114,30 @@ public class MultipleMetricsQueryESDAO extends EsDAO implements IMultipleMetrics
                     for (String key : dataTable.keys()) {
                         int index = Integer.parseInt(key);
                         if (index < ranks.length) {
-                            multipleMetrics.getMetrics().add(new KVInt(getFunctionName(PercentileMetrics.class) + ranks[index], dataTable.get(key)));
+                            metricsValues.getValues().addKVInt(new KVInt(String.valueOf(ranks[index]), dataTable.get(key)));
                         }
                     }
 
                 } else if (is(metricsName, LongAvgMetrics.class)) {
 
-                    multipleMetrics.getMetrics().add(new KVInt(LongAvgMetrics.COUNT, longValue(source, LongAvgMetrics.COUNT)));
-                    multipleMetrics.getMetrics().add(new KVInt(LongAvgMetrics.MAX, longValue(source, LongAvgMetrics.MAX)));
-                    multipleMetrics.getMetrics().add(new KVInt(LongAvgMetrics.MIN, longValue(source, LongAvgMetrics.MIN)));
-
-                } else if (is(metricsName, CPMMetrics.class)) {
-
-                    multipleMetrics.getMetrics().add(new KVInt(getFunctionName(CPMMetrics.class), longValue(source, CPMMetrics.VALUE)));
+                    metricsValues.getValues().addKVInt(new KVInt(LongAvgMetrics.VALUE, longValue(source, LongAvgMetrics.VALUE)));
+                    metricsValues.getValues().addKVInt(new KVInt(LongAvgMetrics.COUNT, longValue(source, LongAvgMetrics.COUNT)));
+                    metricsValues.getValues().addKVInt(new KVInt(LongAvgMetrics.MAX, longValue(source, LongAvgMetrics.MAX)));
+                    metricsValues.getValues().addKVInt(new KVInt(LongAvgMetrics.MIN, longValue(source, LongAvgMetrics.MIN)));
 
                 } else if (is(metricsName, PercentMetrics.class)) {
 
-                    multipleMetrics.getMetrics().add(new KVInt(PercentMetrics.MATCH, longValue(source, PercentMetrics.MATCH)));
-                    multipleMetrics.getMetrics().add(new KVInt(PercentMetrics.PERCENTAGE, longValue(source, PercentMetrics.PERCENTAGE)));
-                    multipleMetrics.getMetrics().add(new KVInt(PercentMetrics.TOTAL, longValue(source, PercentMetrics.TOTAL)));
-                    multipleMetrics.getMetrics().add(new KVInt(PercentMetrics.MATCH, longValue(source, PercentMetrics.MATCH)));
+                    metricsValues.getValues().addKVInt(new KVInt(PercentMetrics.MATCH, longValue(source, PercentMetrics.MATCH)));
+                    metricsValues.getValues().addKVInt(new KVInt(PercentMetrics.PERCENTAGE, longValue(source, PercentMetrics.PERCENTAGE)));
+                    metricsValues.getValues().addKVInt(new KVInt(PercentMetrics.TOTAL, longValue(source, PercentMetrics.TOTAL)));
+                    metricsValues.getValues().addKVInt(new KVInt(PercentMetrics.MATCH, longValue(source, PercentMetrics.MATCH)));
 
+                } else {
+                    String valueColumnName = ValueColumnMetadata.INSTANCE.getValueCName(metricsName);
+                    metricsValues.getValues().addKVInt(new KVInt(valueColumnName, longValue(source, valueColumnName)));
                 }
 
+                multipleMetrics.getMetrics().add(metricsValues);
 
             }
         }

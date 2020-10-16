@@ -18,23 +18,11 @@
 
 package org.apache.skywalking.oap.server.core.analysis;
 
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsFunction;
 
 public class MetricsUtils {
 
     public static boolean is(String metricsName, Class<? extends Metrics> metricsClass) {
         return metricsClass.isAssignableFrom(MetricsModelMapping.INSTANCE.find(metricsName));
-    }
-
-    public static String getFunctionName(Class<? extends Metrics> metricsClass) {
-
-        if (metricsClass.isAnnotationPresent(MetricsFunction.class)) {
-            MetricsFunction metricsFunction = metricsClass.getAnnotation(MetricsFunction.class);
-            return metricsFunction.functionName();
-        }
-
-        return Const.EMPTY_STRING;
     }
 }

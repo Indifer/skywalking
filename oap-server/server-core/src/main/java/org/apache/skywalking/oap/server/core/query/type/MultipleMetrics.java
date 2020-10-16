@@ -38,7 +38,7 @@ public class MultipleMetrics {
 
     private final List<Attribute> attributes;
 
-    private final List<KVInt> metrics;
+    private final List<MetricsValues> metrics;
 
     private String timeBucket;
 
