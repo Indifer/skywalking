@@ -19,27 +19,23 @@
 package org.apache.skywalking.oap.server.core.query;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.query.input.Entity;
 import org.apache.skywalking.oap.server.core.query.input.MultipleMetricsCondition;
 import org.apache.skywalking.oap.server.core.query.type.MultipleMetrics;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
-import org.apache.skywalking.oap.server.core.storage.model.IModelManager;
-import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.query.IMultipleMetricsQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class MultipleMetricsQueryService implements Service {
     private final ModuleManager moduleManager;
     private IMultipleMetricsQueryDAO multipleMetricsQueryDAO;
-    private IModelManager modelManager;
 
     public MultipleMetricsQueryService(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
@@ -48,27 +44,42 @@ public class MultipleMetricsQueryService implements Service {
     public IMultipleMetricsQueryDAO getMultipleMetricsQueryDAO() {
 
         if (multipleMetricsQueryDAO == null) {
-            multipleMetricsQueryDAO = moduleManager.find(StorageModule.NAME).provider().getService(IMultipleMetricsQueryDAO.class);
+            multipleMetricsQueryDAO = moduleManager.find(StorageModule.NAME)
+                    .provider()
+                    .getService(IMultipleMetricsQueryDAO.class);
         }
         return multipleMetricsQueryDAO;
     }
 
-    public IModelManager getModelManager() {
-        if (modelManager == null) {
-            modelManager = moduleManager.find(CoreModule.NAME).provider().getService(IModelManager.class);
-        }
-        return modelManager;
-    }
-
+    /**
+     * Read multiple metrics on the time-sharing
+     */
     public List<MultipleMetrics> readMultipleMetrics(final MultipleMetricsCondition condition,
-                                                     final String timeBucket) throws IOException {
+                                                     final long timeBucket) throws IOException {
 
-        Set<String> metricsSet = new HashSet<>(condition.getNames());
-        List<Model> models = getModelManager().allModels().stream()
-                                                          .filter(model -> metricsSet.contains(model.getName()))
-                                                          .collect(Collectors.toList());
+        List<MultipleMetrics> multipleMetrics = getMultipleMetricsQueryDAO().readMultipleMetrics(
+                condition, timeBucket);
 
-        return getMultipleMetricsQueryDAO().readMultipleMetrics(condition, DurationUtils.INSTANCE.convertToTimeBucket(timeBucket));
+        Entity entity = condition.getEntity();
+        for (MultipleMetrics multipleMetric : multipleMetrics) {
+            String entityId = multipleMetric.getEntityId();
+
+            switch (entity.getScope()) {
+                case Service:
+                    multipleMetric.setName(IDManager.ServiceID.analysisId(entityId).getName());
+                    break;
+                case ServiceInstance:
+                    multipleMetric.setName(IDManager.ServiceInstanceID.analysisId(entityId).getName());
+                    break;
+                case Endpoint:
+                    multipleMetric.setName(IDManager.EndpointID.analysisId(entityId).getEndpointName());
+                    break;
+            }
+
+        }
+
+        return multipleMetrics;
+
     }
 
 }

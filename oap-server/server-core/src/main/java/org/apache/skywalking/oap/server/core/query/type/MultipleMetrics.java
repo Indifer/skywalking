@@ -36,14 +36,11 @@ public class MultipleMetrics {
 
     private String entityId;
 
-    private final List<Attribute> attributes;
-
     private final List<MetricsValues> metrics;
 
     private String timeBucket;
 
     public MultipleMetrics() {
-        this.attributes = new ArrayList<>();
         this.metrics = new ArrayList<>();
     }
 }

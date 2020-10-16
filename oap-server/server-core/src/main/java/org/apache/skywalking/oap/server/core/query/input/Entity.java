@@ -43,6 +43,7 @@ public class Entity {
      *    set necessary names of sources and destinations.
      * </pre>
      */
+    @Getter(AccessLevel.PUBLIC)
     private Scope scope;
 
     private String serviceName;

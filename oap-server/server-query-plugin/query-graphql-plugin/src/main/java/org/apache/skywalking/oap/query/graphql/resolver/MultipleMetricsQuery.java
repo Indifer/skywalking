@@ -19,6 +19,7 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.core.query.MultipleMetricsQueryService;
 import org.apache.skywalking.oap.server.core.query.input.MultipleMetricsCondition;
 import org.apache.skywalking.oap.server.core.query.type.MultipleMetrics;
@@ -48,10 +49,10 @@ public class MultipleMetricsQuery implements GraphQLQueryResolver {
     }
 
     /**
-     *
+     * Read multiple metrics on the time-sharing
      */
     public List<MultipleMetrics> readMultipleMetrics(final MultipleMetricsCondition condition,
-                                                     final String timeBucket) throws IOException {
+                                                     final long timeBucket) throws IOException {
 
         return getMultipleMetricsQueryService().readMultipleMetrics(condition, timeBucket);
 
