@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.analysis.meter.function;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -44,6 +45,8 @@ public abstract class AvgFunction extends Metrics implements AcceptableValue<Lon
     protected static final String SUMMATION = "summation";
     protected static final String COUNT = "count";
     protected static final String VALUE = "value";
+    protected static final String MAX = "max";
+    protected static final String MIN = "min";
 
     @Setter
     @Getter
@@ -70,17 +73,34 @@ public abstract class AvgFunction extends Metrics implements AcceptableValue<Lon
     @Setter
     @Column(columnName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
     private long value;
+    @Getter
+    @Setter
+    @Column(columnName = MAX, storageOnly = true)
+    protected long max;
+    @Getter
+    @Setter
+    @Column(columnName = MIN, storageOnly = true)
+    protected long min;
 
     @Entrance
-    public final void combine(@SourceFrom long summation, @ConstOne long count) {
+    public final void combine(@SourceFrom long summation, @ConstOne long count, @SourceFrom long max, @SourceFrom long min) {
         this.summation += summation;
         this.count += count;
+        if (max > this.max) {
+            this.max = max;
+        }
+
+        if (min < this.min || this.min == 0) {
+            this.min = min;
+        }
+
     }
 
     @Override
     public final void combine(Metrics metrics) {
         AvgFunction longAvgMetrics = (AvgFunction) metrics;
-        combine(longAvgMetrics.summation, longAvgMetrics.count);
+        combine(longAvgMetrics.summation, longAvgMetrics.count, longAvgMetrics.max, longAvgMetrics.min);
+
     }
 
     @Override
@@ -102,6 +122,8 @@ public abstract class AvgFunction extends Metrics implements AcceptableValue<Lon
         metrics.setServiceId(getServiceId());
         metrics.setSummation(getSummation());
         metrics.setCount(getCount());
+        metrics.setMax(getMax());
+        metrics.setMin(getMin());
         return metrics;
     }
 
@@ -113,6 +135,8 @@ public abstract class AvgFunction extends Metrics implements AcceptableValue<Lon
         metrics.setServiceId(getServiceId());
         metrics.setSummation(getSummation());
         metrics.setCount(getCount());
+        metrics.setMax(getMax());
+        metrics.setMin(getMin());
         return metrics;
     }
 
@@ -126,6 +150,8 @@ public abstract class AvgFunction extends Metrics implements AcceptableValue<Lon
         this.count = remoteData.getDataLongs(0);
         this.summation = remoteData.getDataLongs(1);
         setTimeBucket(remoteData.getDataLongs(2));
+        this.max = remoteData.getDataLongs(3);
+        this.min = remoteData.getDataLongs(4);
 
         this.entityId = remoteData.getDataStrings(0);
         this.serviceId = remoteData.getDataStrings(1);
@@ -137,6 +163,8 @@ public abstract class AvgFunction extends Metrics implements AcceptableValue<Lon
         remoteBuilder.addDataLongs(count);
         remoteBuilder.addDataLongs(summation);
         remoteBuilder.addDataLongs(getTimeBucket());
+        remoteBuilder.addDataLongs(max);
+        remoteBuilder.addDataLongs(min);
 
         remoteBuilder.addDataStrings(entityId);
         remoteBuilder.addDataStrings(serviceId);
@@ -155,6 +183,13 @@ public abstract class AvgFunction extends Metrics implements AcceptableValue<Lon
         this.serviceId = entity.serviceId();
         this.summation += value;
         this.count += 1;
+        if (value > this.max) {
+            this.max = value;
+        }
+
+        if (value < this.min || this.min == 0) {
+            this.min = value;
+        }
     }
 
     @Override
@@ -173,6 +208,8 @@ public abstract class AvgFunction extends Metrics implements AcceptableValue<Lon
             };
             metrics.setSummation(((Number) dbMap.get(SUMMATION)).longValue());
             metrics.setValue(((Number) dbMap.get(VALUE)).longValue());
+            metrics.setMax(((Number) dbMap.get(MAX)).longValue());
+            metrics.setMin(((Number) dbMap.get(MIN)).longValue());
             metrics.setCount(((Number) dbMap.get(COUNT)).longValue());
             metrics.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
             metrics.setServiceId((String) dbMap.get(InstanceTraffic.SERVICE_ID));
@@ -185,6 +222,8 @@ public abstract class AvgFunction extends Metrics implements AcceptableValue<Lon
             Map<String, Object> map = new HashMap<>();
             map.put(SUMMATION, storageData.getSummation());
             map.put(VALUE, storageData.getValue());
+            map.put(MAX, storageData.getMax());
+            map.put(MIN, storageData.getMin());
             map.put(COUNT, storageData.getCount());
             map.put(TIME_BUCKET, storageData.getTimeBucket());
             map.put(InstanceTraffic.SERVICE_ID, storageData.getServiceId());

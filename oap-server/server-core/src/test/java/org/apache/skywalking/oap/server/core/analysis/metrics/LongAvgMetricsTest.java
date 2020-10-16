@@ -26,27 +26,31 @@ public class LongAvgMetricsTest {
     @Test
     public void testEntranceCombine() {
         LongAvgMetricsImpl impl = new LongAvgMetricsImpl();
-        impl.combine(12, 1);
-        impl.combine(24, 2);
-        impl.combine(36, 3);
+        impl.combine(12, 1, 12, 12);
+        impl.combine(24, 2, 14, 10);
+        impl.combine(36, 3, 12, 12);
         impl.calculate();
         Assert.assertEquals(12, impl.getValue());
+        Assert.assertEquals(14, impl.getMax());
+        Assert.assertEquals(10, impl.getMin());
     }
 
     @Test
     public void testSelfCombine() {
         LongAvgMetricsImpl impl = new LongAvgMetricsImpl();
-        impl.combine(12, 1);
-        impl.combine(24, 2);
+        impl.combine(12, 1, 12, 12);
+        impl.combine(24, 2, 14, 10);
 
         LongAvgMetricsImpl impl2 = new LongAvgMetricsImpl();
-        impl2.combine(24, 1);
-        impl2.combine(48, 2);
+        impl2.combine(24, 1, 24, 24);
+        impl2.combine(48, 2, 12, 12);
 
         impl.combine(impl2);
 
         impl.calculate();
         Assert.assertEquals(18, impl.getValue());
+        Assert.assertEquals(24, impl.getMax());
+        Assert.assertEquals(10, impl.getMin());
     }
 
     public class LongAvgMetricsImpl extends LongAvgMetrics {

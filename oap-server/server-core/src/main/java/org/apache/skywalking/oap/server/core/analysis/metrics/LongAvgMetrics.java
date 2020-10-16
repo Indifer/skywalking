@@ -47,34 +47,33 @@ public abstract class LongAvgMetrics extends Metrics implements LongValueHolder 
     @Getter
     @Setter
     @Column(columnName = MAX, storageOnly = true)
-    private long max;
+    protected long max;
     @Getter
     @Setter
     @Column(columnName = MIN, storageOnly = true)
-    private long min;
+    protected long min;
     @Getter
     @Setter
     @Column(columnName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
     private long value;
 
     @Entrance
-    public final void combine(@SourceFrom long summation, @ConstOne long count) {
+    public final void combine(@SourceFrom long summation, @ConstOne long count, @SourceFrom long max, @SourceFrom long min) {
         this.summation += summation;
         this.count += count;
-
-        if (value > this.max) {
-            this.max = value;
+        if (max > this.max) {
+            this.max = max;
         }
 
-        if (value < this.min || this.min == 0) {
-            this.min = value;
+        if (min < this.min || this.min == 0) {
+            this.min = min;
         }
     }
 
     @Override
     public final void combine(Metrics metrics) {
         LongAvgMetrics longAvgMetrics = (LongAvgMetrics) metrics;
-        combine(longAvgMetrics.summation, longAvgMetrics.count);
+        combine(longAvgMetrics.summation, longAvgMetrics.count, longAvgMetrics.max, longAvgMetrics.min);
     }
 
     @Override
