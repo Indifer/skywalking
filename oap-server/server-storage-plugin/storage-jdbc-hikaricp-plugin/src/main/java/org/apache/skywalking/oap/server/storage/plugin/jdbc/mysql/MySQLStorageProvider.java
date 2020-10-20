@@ -111,7 +111,7 @@ public class MySQLStorageProvider extends ModuleProvider {
 
         this.registerServiceImplementation(ITopologyQueryDAO.class, new H2TopologyQueryDAO(mysqlClient));
         this.registerServiceImplementation(IMetricsQueryDAO.class, new H2MetricsQueryDAO(mysqlClient));
-        this.registerServiceImplementation(IMultipleMetricsQueryDAO.class, new H2MultipleMetricsQueryDAO(getManager(),mysqlClient));
+        this.registerServiceImplementation(IMultipleMetricsQueryDAO.class, new H2MultipleMetricsQueryDAO(mysqlClient));
         this.registerServiceImplementation(
             ITraceQueryDAO.class,
             new MySQLTraceQueryDAO(

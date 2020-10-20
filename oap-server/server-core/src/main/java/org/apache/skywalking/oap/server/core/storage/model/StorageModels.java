@@ -171,15 +171,6 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
     }
 
     @Override
-    public String getOverrodeName(String columnName) {
-        String newName = columnNameOverrideRule.get(columnName);
-        if (newName == null) {
-            return columnName;
-        }
-        return newName;
-    }
-
-    @Override
     public List<Model> allModels() {
         return models;
     }

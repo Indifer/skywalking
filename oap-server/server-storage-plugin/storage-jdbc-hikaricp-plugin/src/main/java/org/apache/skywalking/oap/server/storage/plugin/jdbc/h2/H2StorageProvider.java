@@ -126,7 +126,7 @@ public class H2StorageProvider extends ModuleProvider {
 
         this.registerServiceImplementation(ITopologyQueryDAO.class, new H2TopologyQueryDAO(h2Client));
         this.registerServiceImplementation(IMetricsQueryDAO.class, new H2MetricsQueryDAO(h2Client));
-        this.registerServiceImplementation(IMultipleMetricsQueryDAO.class, new H2MultipleMetricsQueryDAO(getManager(), h2Client));
+        this.registerServiceImplementation(IMultipleMetricsQueryDAO.class, new H2MultipleMetricsQueryDAO(h2Client));
         this.registerServiceImplementation(
             ITraceQueryDAO.class, new H2TraceQueryDAO(
                 getManager(),

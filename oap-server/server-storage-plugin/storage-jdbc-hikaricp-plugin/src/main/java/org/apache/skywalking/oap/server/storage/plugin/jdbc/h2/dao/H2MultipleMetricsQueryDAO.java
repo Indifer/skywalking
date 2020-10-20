@@ -1,7 +1,6 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import org.apache.skywalking.apm.util.StringUtil;
-import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.LongAvgMetrics;
@@ -12,10 +11,9 @@ import org.apache.skywalking.oap.server.core.query.input.MultipleMetricsConditio
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
 import org.apache.skywalking.oap.server.core.query.type.MultipleMetrics;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
-import org.apache.skywalking.oap.server.core.storage.model.ModelManipulator;
 import org.apache.skywalking.oap.server.core.storage.query.IMultipleMetricsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -30,22 +28,10 @@ import static org.apache.skywalking.oap.server.core.analysis.MetricsUtils.is;
 
 public class H2MultipleMetricsQueryDAO extends H2SQLExecutor implements IMultipleMetricsQueryDAO {
 
-    private final ModuleManager manager;
     private JDBCHikariCPClient h2Client;
-    private ModelManipulator modelOverride;
 
-    public H2MultipleMetricsQueryDAO(ModuleManager manager, JDBCHikariCPClient h2Client) {
-        this.manager = manager;
+    public H2MultipleMetricsQueryDAO(JDBCHikariCPClient h2Client) {
         this.h2Client = h2Client;
-    }
-
-    private ModelManipulator modelManipulator() {
-        if (this.modelOverride == null) {
-            this.modelOverride = manager.find(CoreModule.NAME)
-                    .provider()
-                    .getService(ModelManipulator.class);
-        }
-        return this.modelOverride;
     }
 
     @Override
@@ -123,9 +109,11 @@ public class H2MultipleMetricsQueryDAO extends H2SQLExecutor implements IMultipl
 
     private void readResultSet(ResultSet resultSet, MetricsValues metricsValues, String metricsName) throws SQLException {
 
+        Map<String, String> columnAndStorageMap = TableMetaInfo.getColumnAndStorageMap(metricsName);
+
         if (is(metricsName, PercentileMetrics.class)) {
 
-            String percentileValues = resultSet.getString(getColumnName(PercentileMetrics.VALUE));
+            String percentileValues = resultSet.getString(columnAndStorageMap.get(PercentileMetrics.VALUE));
             DataTable dataTable = new DataTable(percentileValues);
 
             int[] ranks = PercentileMetrics.ranksClone();
@@ -138,25 +126,21 @@ public class H2MultipleMetricsQueryDAO extends H2SQLExecutor implements IMultipl
 
         } else if (is(metricsName, LongAvgMetrics.class)) {
 
-            metricsValues.addIntValue(LongAvgMetrics.VALUE, resultSet.getLong(getColumnName(LongAvgMetrics.VALUE)));
-            metricsValues.addIntValue(LongAvgMetrics.COUNT, resultSet.getLong(getColumnName(LongAvgMetrics.COUNT)));
-            metricsValues.addIntValue(LongAvgMetrics.MAX, resultSet.getLong(getColumnName(LongAvgMetrics.MAX)));
-            metricsValues.addIntValue(LongAvgMetrics.MIN, resultSet.getLong(getColumnName(LongAvgMetrics.MIN)));
+            metricsValues.addIntValue(LongAvgMetrics.VALUE, resultSet.getLong(columnAndStorageMap.get(LongAvgMetrics.VALUE)));
+            metricsValues.addIntValue(LongAvgMetrics.COUNT, resultSet.getLong(columnAndStorageMap.get(LongAvgMetrics.COUNT)));
+            metricsValues.addIntValue(LongAvgMetrics.MAX, resultSet.getLong(columnAndStorageMap.get(LongAvgMetrics.MAX)));
+            metricsValues.addIntValue(LongAvgMetrics.MIN, resultSet.getLong(columnAndStorageMap.get(LongAvgMetrics.MIN)));
 
         } else if (is(metricsName, PercentMetrics.class)) {
 
-            metricsValues.addIntValue(PercentMetrics.PERCENTAGE, resultSet.getLong(getColumnName(PercentMetrics.PERCENTAGE)));
-            metricsValues.addIntValue(PercentMetrics.TOTAL, resultSet.getLong(getColumnName(PercentMetrics.TOTAL)));
-            metricsValues.addIntValue(PercentMetrics.MATCH, resultSet.getLong(getColumnName(PercentMetrics.MATCH)));
+            metricsValues.addIntValue(PercentMetrics.PERCENTAGE, resultSet.getLong(columnAndStorageMap.get(PercentMetrics.PERCENTAGE)));
+            metricsValues.addIntValue(PercentMetrics.TOTAL, resultSet.getLong(columnAndStorageMap.get(PercentMetrics.TOTAL)));
+            metricsValues.addIntValue(PercentMetrics.MATCH, resultSet.getLong(columnAndStorageMap.get(PercentMetrics.MATCH)));
 
         } else {
             String valueColumnName = ValueColumnMetadata.INSTANCE.getValueCName(metricsName);
             metricsValues.addIntValue(valueColumnName, resultSet.getLong(valueColumnName));
         }
-    }
-
-    private String getColumnName(String columnName) {
-        return modelManipulator().getOverrodeName(columnName);
     }
 
 }

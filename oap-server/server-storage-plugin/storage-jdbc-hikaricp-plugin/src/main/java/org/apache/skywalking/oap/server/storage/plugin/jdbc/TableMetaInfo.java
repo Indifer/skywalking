@@ -19,17 +19,47 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import org.apache.skywalking.oap.server.core.storage.model.Model;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import org.apache.skywalking.oap.server.core.storage.model.ColumnName;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
+
+@Getter
+@Builder
+@AllArgsConstructor
 public class TableMetaInfo {
-    private static Map<String, Model> TABLES = new HashMap<>();
+    private static final Map<String, TableMetaInfo> TABLES = new HashMap<>();
+
+    private Model model;
+    private Map<String, String> columnAndStorageMap = new HashMap<>();
 
     public static void addModel(Model model) {
-        TABLES.put(model.getName(), model);
+
+        final List<ModelColumn> columns = model.getColumns();
+        final Map<String, String> columnMap = new HashMap<>();
+        columns.forEach(column -> {
+            ColumnName columnName = column.getColumnName();
+            columnMap.put(columnName.getName(), columnName.getStorageName());
+        });
+
+        TableMetaInfo info = TableMetaInfo.builder()
+                .model(model)
+                .columnAndStorageMap(columnMap)
+                .build();
+        TABLES.put(model.getName(), info);
     }
 
     public static Model get(String moduleName) {
-        return TABLES.get(moduleName);
+        return TABLES.get(moduleName).getModel();
     }
+
+    public static Map<String, String> getColumnAndStorageMap(String moduleName) {
+        return TABLES.get(moduleName).columnAndStorageMap;
+    }
+
 }
