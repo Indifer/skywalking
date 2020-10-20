@@ -114,27 +114,26 @@ public class MultipleMetricsQueryESDAO extends EsDAO implements IMultipleMetrics
                     for (String key : dataTable.keys()) {
                         int index = Integer.parseInt(key);
                         if (index < ranks.length) {
-                            metricsValues.getValues().addKVInt(new KVInt(String.valueOf(ranks[index]), dataTable.get(key)));
+                            metricsValues.addIntValue(String.valueOf(ranks[index]), dataTable.get(key));
                         }
                     }
 
                 } else if (is(metricsName, LongAvgMetrics.class)) {
 
-                    metricsValues.getValues().addKVInt(new KVInt(LongAvgMetrics.VALUE, longValue(source, LongAvgMetrics.VALUE)));
-                    metricsValues.getValues().addKVInt(new KVInt(LongAvgMetrics.COUNT, longValue(source, LongAvgMetrics.COUNT)));
-                    metricsValues.getValues().addKVInt(new KVInt(LongAvgMetrics.MAX, longValue(source, LongAvgMetrics.MAX)));
-                    metricsValues.getValues().addKVInt(new KVInt(LongAvgMetrics.MIN, longValue(source, LongAvgMetrics.MIN)));
+                    metricsValues.addIntValue(LongAvgMetrics.VALUE, longValue(source, LongAvgMetrics.VALUE));
+                    metricsValues.addIntValue(LongAvgMetrics.COUNT, longValue(source, LongAvgMetrics.COUNT));
+                    metricsValues.addIntValue(LongAvgMetrics.MAX, longValue(source, LongAvgMetrics.MAX));
+                    metricsValues.addIntValue(LongAvgMetrics.MIN, longValue(source, LongAvgMetrics.MIN));
 
                 } else if (is(metricsName, PercentMetrics.class)) {
 
-                    metricsValues.getValues().addKVInt(new KVInt(PercentMetrics.MATCH, longValue(source, PercentMetrics.MATCH)));
-                    metricsValues.getValues().addKVInt(new KVInt(PercentMetrics.PERCENTAGE, longValue(source, PercentMetrics.PERCENTAGE)));
-                    metricsValues.getValues().addKVInt(new KVInt(PercentMetrics.TOTAL, longValue(source, PercentMetrics.TOTAL)));
-                    metricsValues.getValues().addKVInt(new KVInt(PercentMetrics.MATCH, longValue(source, PercentMetrics.MATCH)));
+                    metricsValues.addIntValue(PercentMetrics.MATCH, longValue(source, PercentMetrics.MATCH));
+                    metricsValues.addIntValue(PercentMetrics.PERCENTAGE, longValue(source, PercentMetrics.PERCENTAGE));
+                    metricsValues.addIntValue(PercentMetrics.TOTAL, longValue(source, PercentMetrics.TOTAL));
 
                 } else {
                     String valueColumnName = ValueColumnMetadata.INSTANCE.getValueCName(metricsName);
-                    metricsValues.getValues().addKVInt(new KVInt(valueColumnName, longValue(source, valueColumnName)));
+                    metricsValues.addIntValue(valueColumnName, longValue(source, valueColumnName));
                 }
 
                 multipleMetrics.getMetrics().add(metricsValues);

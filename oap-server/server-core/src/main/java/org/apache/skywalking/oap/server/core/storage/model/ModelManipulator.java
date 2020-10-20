@@ -25,4 +25,6 @@ import org.apache.skywalking.oap.server.library.module.Service;
  */
 public interface ModelManipulator extends Service {
     void overrideColumnName(String columnName, String newName);
+
+    String getOverrodeName(String columnName);
 }

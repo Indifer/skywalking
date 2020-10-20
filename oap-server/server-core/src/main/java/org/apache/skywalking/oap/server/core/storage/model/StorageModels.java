@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
@@ -59,8 +60,8 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
         retrieval(aClass, storage.getModelName(), modelColumns, extraQueryIndices);
 
         Model model = new Model(
-            storage.getModelName(), modelColumns, extraQueryIndices, scopeId,
-            storage.getDownsampling(), record, isSuperDatasetModel(aClass)
+                storage.getModelName(), modelColumns, extraQueryIndices, scopeId,
+                storage.getDownsampling(), record, isSuperDatasetModel(aClass)
         );
 
         this.followColumnNameRules(model);
@@ -115,23 +116,23 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                             columnLength = Integer.parseInt(envValue);
                         } catch (NumberFormatException e) {
                             log.error("Model [{}] Column [{}], illegal value {} of column length from system env [{}]",
-                                      modelName, column.columnName(), envValue, lengthEnvVariable
+                                    modelName, column.columnName(), envValue, lengthEnvVariable
                             );
                         }
                     }
                 }
                 modelColumns.add(
-                    new ModelColumn(
-                        new ColumnName(modelName, column.columnName()), field.getType(), field.getGenericType(),
-                        column.matchQuery(), column.storageOnly(), column.dataType().isValue(), columnLength
-                    ));
+                        new ModelColumn(
+                                new ColumnName(modelName, column.columnName()), field.getType(), field.getGenericType(),
+                                column.matchQuery(), column.storageOnly(), column.dataType().isValue(), columnLength
+                        ));
                 if (log.isDebugEnabled()) {
                     log.debug("The field named {} with the {} type", column.columnName(), field.getType());
                 }
                 if (column.dataType().isValue()) {
                     ValueColumnMetadata.INSTANCE.putIfAbsent(
-                        modelName, column.columnName(), column.dataType(), column.function(),
-                        column.defaultValue()
+                            modelName, column.columnName(), column.dataType(), column.function(),
+                            column.defaultValue()
                     );
                 }
 
@@ -145,8 +146,8 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                 }
 
                 indexDefinitions.forEach(indexDefinition -> extraQueryIndices.add(new ExtraQueryIndex(
-                    column.columnName(),
-                    indexDefinition.withColumns()
+                        column.columnName(),
+                        indexDefinition.withColumns()
                 )));
             }
         }
@@ -167,6 +168,15 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
             model.getColumns().forEach(column -> column.getColumnName().overrideName(oldName, newName));
             model.getExtraQueryIndices().forEach(extraQueryIndex -> extraQueryIndex.overrideName(oldName, newName));
         });
+    }
+
+    @Override
+    public String getOverrodeName(String columnName) {
+        String newName = columnNameOverrideRule.get(columnName);
+        if (newName == null) {
+            return columnName;
+        }
+        return newName;
     }
 
     @Override

@@ -29,4 +29,8 @@ import lombok.Setter;
 public class MetricsValues {
     private String label;
     private IntValues values = new IntValues();
+
+    public void addIntValue(String id, long value) {
+        values.addKVInt(new KVInt(id, value));
+    }
 }
