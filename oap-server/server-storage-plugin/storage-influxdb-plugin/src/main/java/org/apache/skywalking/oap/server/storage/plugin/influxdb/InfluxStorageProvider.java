@@ -37,6 +37,7 @@ import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IMultipleMetricsQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
@@ -54,6 +55,7 @@ import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.BrowserLog
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.LogQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.MetadataQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.MetricsQuery;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.MultipleMetricsQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.NetworkAddressAliasDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.ProfileTaskLogQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.ProfileTaskQuery;
@@ -99,6 +101,7 @@ public class InfluxStorageProvider extends ModuleProvider {
 
         this.registerServiceImplementation(ITopologyQueryDAO.class, new TopologyQuery(client));
         this.registerServiceImplementation(IMetricsQueryDAO.class, new MetricsQuery(client));
+        this.registerServiceImplementation(IMultipleMetricsQueryDAO.class, new MultipleMetricsQueryDAO(client));
         this.registerServiceImplementation(ITraceQueryDAO.class, new TraceQuery(client));
         this.registerServiceImplementation(IBrowserLogQueryDAO.class, new BrowserLogQuery(client));
         this.registerServiceImplementation(IAggregationQueryDAO.class, new AggregationQuery(client));
