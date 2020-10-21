@@ -58,7 +58,6 @@ public class MultipleMetricsQueryDAO implements IMultipleMetricsQueryDAO {
         this.client = client;
     }
 
-
     @Override
     public List<MultipleMetrics> readMultipleMetrics(MultipleMetricsCondition condition, long timeBucket) throws IOException {
 
@@ -118,7 +117,6 @@ public class MultipleMetricsQueryDAO implements IMultipleMetricsQueryDAO {
                         }
                         multipleMetrics.getMetrics().add(metricsValues);
 
-
                     }
                 }
 
@@ -127,7 +125,6 @@ public class MultipleMetricsQueryDAO implements IMultipleMetricsQueryDAO {
 
         return new ArrayList<>(multipleMetricsMap.values());
     }
-
 
     private void readResult(Map<String, Integer> columnMap, List<Object> values, MetricsValues metricsValues, String metricsName) {
 
