@@ -26,7 +26,6 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.PercentMetrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.PercentileMetrics;
 import org.apache.skywalking.oap.server.core.query.input.MultipleMetricsCondition;
-import org.apache.skywalking.oap.server.core.query.type.KVInt;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
 import org.apache.skywalking.oap.server.core.query.type.MultipleMetrics;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
