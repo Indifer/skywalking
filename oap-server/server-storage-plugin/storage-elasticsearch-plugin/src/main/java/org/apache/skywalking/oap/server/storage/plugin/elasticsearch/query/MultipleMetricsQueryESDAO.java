@@ -109,11 +109,11 @@ public class MultipleMetricsQueryESDAO extends EsDAO implements IMultipleMetrics
                     String percentileValues = (String) source.get(PercentileMetrics.VALUE);
                     DataTable dataTable = new DataTable(percentileValues);
 
-                    int[] ranks = PercentileMetrics.ranksClone();
+                    List<Integer> ranks = PercentileMetrics.RANKS;
                     for (String key : dataTable.keys()) {
                         int index = Integer.parseInt(key);
-                        if (index < ranks.length) {
-                            metricsValues.addIntValue(String.valueOf(ranks[index]), dataTable.get(key));
+                        if (index < ranks.size()) {
+                            metricsValues.addIntValue(String.valueOf(ranks.get(index)), dataTable.get(key));
                         }
                     }
 

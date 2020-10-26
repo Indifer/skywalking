@@ -18,9 +18,13 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Arg;
@@ -39,17 +43,13 @@ public abstract class PercentileMetrics extends Metrics implements MultiIntValue
     public static final String VALUE = "value";
     public static final String PRECISION = "precision";
 
-    private static final int[] RANKS = {
+    public static final List<Integer> RANKS = Collections.unmodifiableList(Stream.of(
         50,
         75,
         90,
         95,
         99
-    };
-
-    public static int[] ranksClone() {
-        return RANKS.clone();
-    }
+    ).collect(Collectors.toList()));
 
     @Getter
     @Setter
@@ -67,7 +67,7 @@ public abstract class PercentileMetrics extends Metrics implements MultiIntValue
     private boolean isCalculated;
 
     public PercentileMetrics() {
-        percentileValues = new DataTable(RANKS.length);
+        percentileValues = new DataTable(RANKS.size());
         dataset = new DataTable(30);
     }
 
@@ -93,9 +93,9 @@ public abstract class PercentileMetrics extends Metrics implements MultiIntValue
         if (!isCalculated) {
             long total = dataset.sumOfValues();
 
-            int[] roofs = new int[RANKS.length];
-            for (int i = 0; i < RANKS.length; i++) {
-                roofs[i] = Math.round(total * RANKS[i] * 1.0f / 100);
+            int[] roofs = new int[RANKS.size()];
+            for (int i = 0, len = RANKS.size(); i < len; i++) {
+                roofs[i] = Math.round(total * RANKS.get(i) * 1.0f / 100);
             }
 
             int count = 0;
@@ -122,8 +122,8 @@ public abstract class PercentileMetrics extends Metrics implements MultiIntValue
 
     public int[] getValues() {
         return percentileValues.sortedValues(Comparator.comparingInt(Integer::parseInt))
-                               .stream()
-                               .flatMapToInt(l -> IntStream.of(l.intValue()))
-                               .toArray();
+            .stream()
+            .flatMapToInt(l -> IntStream.of(l.intValue()))
+            .toArray();
     }
 }
